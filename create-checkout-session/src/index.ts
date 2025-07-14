@@ -18,8 +18,8 @@ module.exports = async function (req: ReqType, res: any) {
     const session = await stripe.checkout.sessions.create({
       mode,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: "https://your-app.com/success", // change these
-      cancel_url: "https://your-app.com/cancel",   // to match your frontend
+      success_url: "http://localhost:5173/checkout-success", 
+      cancel_url: "http://localhost:5173/checkout-cancel",  
     });
 
     res.json({ url: session.url });
