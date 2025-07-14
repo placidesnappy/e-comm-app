@@ -1,31 +1,43 @@
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2022-11-15" as any, // ✅ Fixed version
 });
 
 type ReqType = {
   bodyRaw?: string;
 };
 
-module.exports = async function (req: ReqType, res: any) {
-  const body = JSON.parse(req.bodyRaw || "{}");
-  const { priceId, mode } = body;
-
-  if (!priceId || !mode) {
-    return res.json({ error: "Missing priceId or mode" });
-  }
-
+export default async function main(req: ReqType, res: any) {
   try {
+    const body = JSON.parse(req.bodyRaw || "{}");
+    const { priceId, mode } = body;
+
+    if (!priceId || !mode) {
+      console.error("❌ Missing priceId or mode");
+      return res.json({ error: "Missing priceId or mode" });
+    }
+
+    console.log("✅ Creating Stripe Checkout Session with", { priceId, mode });
+
     const session = await stripe.checkout.sessions.create({
       mode,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: "http://localhost:5173/checkout-success", 
-      cancel_url: "http://localhost:5173/checkout-cancel",  
+      success_url: "http://localhost:5173/checkout-success",
+      cancel_url: "http://localhost:5173/checkout-cancel",
     });
 
-    res.json({ url: session.url });
+    if (!session.url) {
+      console.error("❌ No session URL returned from Stripe");
+      return res.json({ error: "No checkout URL returned" });
+    }
+
+    console.log("✅ Checkout session created:", session.url);
+
+    return res.json({ url: session.url });
+
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Stripe error:", err);
+    return res.status(500).json({ error: err.message });
   }
-};
+}
