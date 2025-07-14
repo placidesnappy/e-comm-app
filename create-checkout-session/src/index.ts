@@ -1,0 +1,29 @@
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
+type ReqType = {
+  bodyRaw?: string;
+};
+
+module.exports = async function (req: ReqType, res: any) {
+  const body = JSON.parse(req.bodyRaw || "{}");
+  const { priceId, mode } = body;
+
+  if (!priceId || !mode) {
+    return res.json({ error: "Missing priceId or mode" });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: "https://your-app.com/success", // change these
+      cancel_url: "https://your-app.com/cancel",   // to match your frontend
+    });
+
+    res.json({ url: session.url });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
