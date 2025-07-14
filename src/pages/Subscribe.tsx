@@ -1,7 +1,22 @@
+import { useState } from "react";
+import { createCheckoutSession } from "../api/stripe"; // Adjust path if needed
+import { STRIPE_SUBSCRIPTION_PRICE_ID } from "../lib/appwrite";
+
+
 const Subscribe = () => {
+  const [loading, setLoading] = useState(false);
+
   const handleSubscribe = async () => {
-    // Replace with real Stripe session logic later
-    window.location.href = "https://your-backend.com/create-checkout-session";
+    setLoading(true);
+    try {
+      const url = await createCheckoutSession(STRIPE_SUBSCRIPTION_PRICE_ID, "subscription");
+      console.log("Checkout URL from backend:", url);
+      window.location.href = url;
+      console.log("Checkout URL from backend:", url);
+    } catch (error: any) {
+      alert("Failed to start subscription: " + error.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -16,9 +31,10 @@ const Subscribe = () => {
         <p className="text-sm text-gray-600 mb-4">Only $5/month. Cancel anytime.</p>
         <button
           onClick={handleSubscribe}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+          disabled={loading}
+          className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          Subscribe Now
+          {loading ? "Processing..." : "Subscribe Now"}
         </button>
       </div>
     </div>
