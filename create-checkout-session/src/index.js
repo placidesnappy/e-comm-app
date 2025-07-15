@@ -1,14 +1,10 @@
-import Stripe from "stripe";
+const Stripe = require("stripe");
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2022-11-15" as any, // ✅ Fixed version
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2022-11-15",
 });
 
-type ReqType = {
-  bodyRaw?: string;
-};
-
-export default async function main(req: ReqType, res: any) {
+module.exports = async function (req, res) {
   try {
     const body = JSON.parse(req.bodyRaw || "{}");
     const { priceId, mode } = body;
@@ -35,9 +31,8 @@ export default async function main(req: ReqType, res: any) {
     console.log("✅ Checkout session created:", session.url);
 
     return res.json({ url: session.url });
-
-  } catch (err: any) {
+  } catch (err) {
     console.error("❌ Stripe error:", err);
     return res.status(500).json({ error: err.message });
   }
-}
+};
