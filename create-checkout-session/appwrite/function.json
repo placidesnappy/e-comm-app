@@ -3,8 +3,7 @@
   "runtime": "node-18.0",
   "entrypoint":"src/index.js",
   "commands": [
-    "npm install",
-    "npm run build"
+    "npm install"
   ],
   "vars": {
     "STRIPE_SECRET_KEY": "env"
