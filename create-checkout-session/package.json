@@ -1,7 +1,7 @@
 {
   "name": "create-checkout-session",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "echo \"No build needed for JS function\""
   },
